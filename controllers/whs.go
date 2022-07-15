@@ -138,7 +138,7 @@ func DeleteWhs(c *gin.Context) {
 	r.ID = services.GenID()
 	r.Success = true
 	whs.ID = c.Param("id")
-	err := db.Delete(&whs)
+	err := db.Delete(&whs).Error
 	if err != nil {
 		r.Success = false
 		r.Message = "Not Found Whd ID: " + c.Param("id")
@@ -147,7 +147,8 @@ func DeleteWhs(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	r.Message = "Delete " + whs.ID
-	r.Data = &whs
+
+	r.Message = "Delete " + c.Param("id")
+	r.Data = nil
 	c.JSON(http.StatusOK, &r)
 }

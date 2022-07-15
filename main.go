@@ -25,7 +25,6 @@ func init() {
 		panic("Error loading .env file")
 	}
 
-	// dns := "host=" + os.Getenv("DBHOST") + " user=" + os.Getenv("DBUSER") + " password=" + os.Getenv("DBPASSWORD") + " dbname=" + os.Getenv("DBNAME") + " port=" + os.Getenv("DBPORT") + " sslmode=" + os.Getenv("SSLMODE") + " TimeZone=" + os.Getenv("TZNAME") + ""
 	dns := "host=" + os.Getenv("DB_HOST") +
 		" user=" + os.Getenv("DB_USER") +
 		" password=" + os.Getenv("DB_PASSWORD") +
@@ -33,6 +32,15 @@ func init() {
 		" port=" + os.Getenv("DB_PORT") +
 		" sslmode=" + os.Getenv("SSL_MODE") +
 		" TimeZone=" + os.Getenv("TZ_NAME") + ""
+
+	if os.Getenv("DB_PASSWORD") == "" {
+		dns = "host=" + os.Getenv("DB_HOST") +
+			" user=" + os.Getenv("DB_USER") +
+			" dbname=" + os.Getenv("DB_NAME") +
+			" port=" + os.Getenv("DB_PORT") +
+			" sslmode=" + os.Getenv("SSL_MODE") +
+			" TimeZone=" + os.Getenv("TZ_NAME") + ""
+	}
 	services.DB, err = gorm.Open(postgres.Open(dns), &gorm.Config{
 		SkipDefaultTransaction: true,
 		NowFunc: func() time.Time {
@@ -52,6 +60,7 @@ func init() {
 	services.DB.AutoMigrate(&models.User{})
 	services.DB.AutoMigrate(&models.JwtToken{})
 	services.DB.AutoMigrate(&models.Whs{})
+	services.DB.AutoMigrate(&models.Factory{})
 }
 
 func main() {
