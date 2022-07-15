@@ -19,5 +19,10 @@ func SetupRoutes(r *gin.Engine) {
 	member := grp.Group("member")
 	member.GET("/me", controllers.Hello)
 
-	// whs := auth.Group("")
+	whs := grp.Group("/whs")
+	whs.GET("/all", controllers.ShowAllWhs)
+	whs.POST("/create", controllers.CreateWhs)
+	whs.GET("/show/:id", controllers.ShowWhs)
+	whs.PUT("/update/:id", controllers.UpdateWhs)
+	whs.DELETE("/delete/:id", controllers.DeleteWhs)
 }

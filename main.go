@@ -51,6 +51,7 @@ func init() {
 	}
 	services.DB.AutoMigrate(&models.User{})
 	services.DB.AutoMigrate(&models.JwtToken{})
+	services.DB.AutoMigrate(&models.Whs{})
 }
 
 func main() {

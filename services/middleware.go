@@ -52,6 +52,7 @@ func AuthorizationRequired(c *gin.Context) {
 	_, er := ValidateToken(jwtToken.Token)
 	if er != nil {
 		r.Message = "Token is expire!"
+		db.Delete(&jwtToken)
 		c.JSON(http.StatusInternalServerError, &r)
 		c.Abort()
 		return
