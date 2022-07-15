@@ -68,7 +68,7 @@ func SignIn(c *gin.Context) {
 		r.Success = false
 		r.Message = "ระบบเกิดข้อผิดพลาด กรุณาติดต่อผู้ดูแลระบบด้วย"
 		r.Data = er
-		c.JSON(http.StatusUnauthorized, &r)
+		c.JSON(http.StatusBadRequest, &r)
 		c.Abort()
 		return
 	}

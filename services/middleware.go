@@ -1,41 +1,60 @@
 package services
 
 import (
-	"fmt"
-	"os"
+	"net/http"
+	"strings"
 
+	"github.com/abe27/gin/bugtracker/api/models"
 	"github.com/gin-gonic/gin"
 )
 
-// func AuthError(c *BadExpr, e error) error {
-// 	var r Response
-// 	r.Status = false
-// 	r.Message = "คุณไม่มีสิทธ์เข้าใช้งานส่วนนี้"
-// 	c.Status(fiber.StatusUnauthorized).JSON(r)
-// 	return nil
-// }
+func AuthorizationRequired(c *gin.Context) {
+	// secret_key := os.Getenv("SECRET_KEY")
+	var r models.Response
+	r.ID = GenID()
+	s := c.Request.Header.Get("Authorization")
+	token := strings.TrimPrefix(s, "Bearer ")
 
-// if header == "" {
-//     return "", errors.New("bad header value given")
-// }
+	if token == "" {
+		r.Message = "กรุณาระบุ Authorization ด้วย"
+		c.JSON(http.StatusUnauthorized, &r)
+		c.Abort()
+		return
+	}
 
-// jwtToken := strings.Split(header, " ")
-// if len(jwtToken) != 2 {
-//     return "", errors.New("incorrectly formatted authorization header")
-// }
+	// Check Token On DB
+	db := DB
+	var jwtToken models.JwtToken
+	err := db.Where("key=?", token).Find(&jwtToken).Error
+	if err != nil {
+		r.Message = "เกิดข้อผิดพลาดกรุณาติดต่อผู้ดูแลระบบ"
+		c.JSON(http.StatusInternalServerError, &r)
+		c.Abort()
+		return
+	}
 
-// return jwtToken[1], nil
+	if jwtToken.ID == "" {
+		r.Message = "ไม่พบข้อมูล Authorization Token!"
+		c.JSON(http.StatusUnauthorized, &r)
+		c.Abort()
+		return
+	}
 
-func AuthError() {
-
-}
-
-func AuthSuccess(c *gin.Context) error {
+	// Check Token Expire
+	// uid, er := ValidateToken(jwtToken.Token)
+	// if er != nil {
+	// 	r.Message = "Token is validated!"
+	// 	c.JSON(http.StatusInternalServerError, &r)
+	// 	c.Abort()
+	// 	return
+	// }
+	// fmt.Println("UID: ", uid)
+	_, er := ValidateToken(jwtToken.Token)
+	if er != nil {
+		r.Message = "Token is expire!"
+		c.JSON(http.StatusInternalServerError, &r)
+		c.Abort()
+		return
+	}
 	c.Next()
-	return nil
-}
-
-func AuthorizationRequired() {
-	secret_key := os.Getenv("SECRET_KEY")
-	fmt.Println(secret_key)
 }
