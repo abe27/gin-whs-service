@@ -9,6 +9,7 @@ import (
 	"github.com/abe27/gin/bugtracker/api/models"
 	"github.com/abe27/gin/bugtracker/api/routes"
 	"github.com/abe27/gin/bugtracker/api/services"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -49,11 +50,13 @@ func init() {
 		panic("Failed to connect to database")
 	}
 	services.DB.AutoMigrate(&models.User{})
+	services.DB.AutoMigrate(&models.JwtToken{})
 }
 
 func main() {
 	// gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
+	app.Use(cors.Default())
 	routes.SetupRoutes(app)
 	app.Run(":3000")
 }

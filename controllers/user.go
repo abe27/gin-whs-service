@@ -62,8 +62,21 @@ func SignIn(c *gin.Context) {
 		return
 	}
 
+	var auth models.Authentication
+	header, tokenType, token, er := services.CreateToken(&u)
+	if er != nil {
+		r.Success = false
+		r.Message = "ระบบเกิดข้อผิดพลาด กรุณาติดต่อผู้ดูแลระบบด้วย"
+		r.Data = er
+		c.JSON(http.StatusUnauthorized, &r)
+		c.Abort()
+		return
+	}
+	auth.Header = header
+	auth.Type = tokenType
+	auth.Token = token
 	r.Success = true
 	r.Message = "เข้าสู่ระบบเรียบร้อยแล้ว"
-	r.Data = &u
+	r.Data = &auth
 	c.JSON(http.StatusOK, &r)
 }
