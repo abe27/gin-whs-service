@@ -26,4 +26,11 @@ func SetupRoutes(r *gin.Engine) {
 	whs.GET("/show/:id", controllers.ShowWhs)
 	whs.PUT("/update/:id", controllers.UpdateWhs)
 	whs.DELETE("/delete/:id", controllers.DeleteWhs)
+
+	fac := grp.Group("/factory")
+	fac.GET("/all", controllers.ShowAllFactory)
+	fac.POST("/create", controllers.CreateFactory)
+	fac.GET("/show/:id", controllers.ShowFactory)
+	fac.PUT("/update/:id", controllers.UpdateFactory)
+	fac.DELETE("/delete/:id", controllers.DeleteFactory)
 }
