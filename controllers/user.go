@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/abe27/gin/bugtracker/api/models"
 	"github.com/abe27/gin/bugtracker/api/services"
@@ -12,14 +13,21 @@ func Register(c *gin.Context) {
 	db := services.DB
 	var r models.Response
 	r.ID = services.GenID()
-	u := new(models.User)
-	u.ID = services.GenID()
-	u.UserName = c.PostForm("username")
-	u.Email = c.PostForm("email")
+	r.Success = true
+	var u models.User
+	err := c.ShouldBind(&u)
+	if err != nil {
+		r.Success = false
+		r.Message = "เกิดข้อผิดพลาด\nกรุณาตรวจสอบข้อมูลก่อนดำเนินการด้วย"
+		r.Data = &u
+		c.JSON(http.StatusBadRequest, &r)
+		c.Abort()
+		return
+	}
 	hash, _ := services.HashPassword(c.PostForm("password"))
 	u.Password = hash
 
-	err := db.Create(&u).Error
+	err = db.Create(&u).Error
 	if err != nil {
 		r.Success = false
 		r.Message = "เกิดข้อผิดพลาด!"
@@ -29,7 +37,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	r.Success = true
 	r.Message = "บันทึกข้อมูลเรียบร้อยแล้ว"
 	r.Data = &u
 	c.JSON(http.StatusCreated, &r)
@@ -40,9 +47,17 @@ func SignIn(c *gin.Context) {
 	var r models.Response
 	r.ID = services.GenID()
 	var u models.User
-	u.UserName = c.PostForm("username")
-	password := c.PostForm("password")
-	err := db.Where("username", u.UserName).First(&u).Error
+	err := c.ShouldBind(&u)
+	if err != nil {
+		r.Success = false
+		r.Message = "เกิดข้อผิดพลาด\nกรุณาตรวจสอบข้อมูลก่อนดำเนินการด้วย"
+		r.Data = err
+		c.JSON(http.StatusNotFound, &r)
+		c.Abort()
+		return
+	}
+
+	err = db.Where("username", u.UserName).First(&u).Error
 	if err != nil {
 		r.Success = false
 		r.Message = "ไม่พบข้อมูลผู้ใช้งาน"
@@ -53,7 +68,7 @@ func SignIn(c *gin.Context) {
 	}
 
 	// Compare HashPassword
-	r.Success = services.CheckPasswordHash(password, u.Password)
+	r.Success = services.CheckPasswordHash(c.PostForm("password"), u.Password)
 	if !r.Success {
 		r.Message = "ระบุรหัสผ่านไม่ถูกต้อง"
 		r.Data = nil
@@ -63,10 +78,10 @@ func SignIn(c *gin.Context) {
 	}
 
 	var auth models.Authentication
-	header, tokenType, token, er := services.CreateToken(&u)
+	header, tokenType, token, er := services.CreateToken(u.ID)
 	if er != nil {
 		r.Success = false
-		r.Message = "ระบบเกิดข้อผิดพลาด กรุณาติดต่อผู้ดูแลระบบด้วย"
+		r.Message = services.SystemError
 		r.Data = er
 		c.JSON(http.StatusBadRequest, &r)
 		c.Abort()
@@ -76,7 +91,34 @@ func SignIn(c *gin.Context) {
 	auth.Type = tokenType
 	auth.Token = token
 	r.Success = true
-	r.Message = "เข้าสู่ระบบเรียบร้อยแล้ว"
+	r.Message = services.AuthenticateIsSuccess
 	r.Data = &auth
+	c.JSON(http.StatusOK, &r)
+}
+
+func SignOut(c *gin.Context) {
+	var r models.Response
+	r.ID = services.GenID()
+	s := c.Request.Header.Get("Authorization")
+	token := strings.TrimPrefix(s, "Bearer ")
+	if token == "" {
+		r.Message = services.AuthenticateRequiredToken
+		c.JSON(http.StatusUnauthorized, &r)
+		c.Abort()
+		return
+	}
+	// Delete Token On DB
+	db := services.DB
+	err := db.Where("key=?", token).Delete(&models.JwtToken{})
+	if err != nil {
+		r.Message = services.SystemError
+		c.JSON(http.StatusInternalServerError, &r)
+		c.Abort()
+		return
+	}
+
+	r.Success = true
+	r.Message = services.UserLeave
+	r.Data = nil
 	c.JSON(http.StatusOK, &r)
 }

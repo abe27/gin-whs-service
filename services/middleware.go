@@ -39,16 +39,6 @@ func AuthorizationRequired(c *gin.Context) {
 		c.Abort()
 		return
 	}
-
-	// Check Token Expire
-	// uid, er := ValidateToken(jwtToken.Token)
-	// if er != nil {
-	// 	r.Message = "Token is validated!"
-	// 	c.JSON(http.StatusInternalServerError, &r)
-	// 	c.Abort()
-	// 	return
-	// }
-	// fmt.Println("UID: ", uid)
 	_, er := ValidateToken(jwtToken.Token)
 	if er != nil {
 		r.Message = "Token is expire!"

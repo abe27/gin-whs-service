@@ -9,12 +9,12 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 )
 
-func CreateToken(obj *models.User) (string, string, string, error) {
+func CreateToken(UserId string) (string, string, string, error) {
 	secret_key := os.Getenv("SECRET_KEY")
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["sub"] = GenID()
-	claims["name"] = obj.ID
+	claims["name"] = UserId
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 	tokenKey, err := token.SignedString([]byte(secret_key))
 	if err != nil {
@@ -22,19 +22,21 @@ func CreateToken(obj *models.User) (string, string, string, error) {
 	}
 
 	/// Insert Token Key to DB
-	id := TokenID()
 	db := DB
 	t := new(models.JwtToken)
-	t.ID = GenID()
-	t.Key = id
-	t.UserID = obj.ID
+	t.UserID = UserId
 	t.Token = tokenKey
+	// Delete UserID before creating TokenID
+	err = db.Where("user_id=?", t.UserID).Delete(&models.JwtToken{}).Error
+	if err != nil {
+		panic(err)
+	}
 
 	err = db.Create(&t).Error
 	if err != nil {
-		db.Where("user_id=?", t.UserID).Delete(&models.JwtToken{})
+		panic(err)
 	}
-	return "Authorization", "Bearer", id, err
+	return "Authorization", "Bearer", t.Key, err
 }
 
 func ValidateToken(tokenKey string) (interface{}, error) {

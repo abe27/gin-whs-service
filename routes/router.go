@@ -18,6 +18,7 @@ func SetupRoutes(r *gin.Engine) {
 	grp.Use(services.AuthorizationRequired)
 	member := grp.Group("member")
 	member.GET("/me", controllers.Hello)
+	member.GET("/logout", controllers.SignOut)
 
 	whs := grp.Group("/whs")
 	whs.GET("/all", controllers.ShowAllWhs)
