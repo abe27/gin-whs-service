@@ -40,4 +40,11 @@ func SetupRoutes(r *gin.Engine) {
 	rss.GET("/show/:id", controllers.ShowRssGroupByID)
 	rss.PUT("/update/:id", controllers.UpdateRssGroup)
 	rss.DELETE("/delete/:id", controllers.DeleteRssGroup)
+
+	rss_ledger := grp.Group("/rssledger")
+	rss_ledger.GET("/all", controllers.ShowAllReceiveLedger)
+	rss_ledger.POST("/create", controllers.CreateReceiveLedger)
+	rss_ledger.GET("/show/:id", controllers.ShowReceiveLedgerByID)
+	rss_ledger.PUT("/update/:id", controllers.UpdateReceiveLedger)
+	rss_ledger.DELETE("/delete/:id", controllers.DeleteReceiveLedger)
 }
