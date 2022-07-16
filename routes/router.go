@@ -33,4 +33,11 @@ func SetupRoutes(r *gin.Engine) {
 	fac.GET("/show/:id", controllers.ShowFactory)
 	fac.PUT("/update/:id", controllers.UpdateFactory)
 	fac.DELETE("/delete/:id", controllers.DeleteFactory)
+
+	rss := grp.Group("/rssgroup")
+	rss.GET("/all", controllers.ShowAllRssGroup)
+	rss.POST("/create", controllers.CreateRssGroup)
+	rss.GET("/show/:id", controllers.ShowRssGroupByID)
+	rss.PUT("/update/:id", controllers.UpdateRssGroup)
+	rss.DELETE("/delete/:id", controllers.DeleteRssGroup)
 }

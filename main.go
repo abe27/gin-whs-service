@@ -61,6 +61,8 @@ func init() {
 	services.DB.AutoMigrate(&models.JwtToken{})
 	services.DB.AutoMigrate(&models.Whs{})
 	services.DB.AutoMigrate(&models.Factory{})
+	services.DB.AutoMigrate(&models.RssGroup{})
+	services.DB.AutoMigrate(&models.ReceiveLedger{})
 }
 
 func main() {

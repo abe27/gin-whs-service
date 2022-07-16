@@ -8,7 +8,8 @@ import (
 )
 
 type Whs struct {
-	ID          string    `gorm:"size:21" form:"id"`
+	gorm.Model
+	ID          string    `gorm:"index;size:21" form:"id"`
 	Name        string    `gorm:"unique;not null;size:25" form:"name" binding:"required"`
 	Slug        string    `gorm:"not null;size:5" form:"slug" binding:"required"`
 	Description string    `gorm:"null;size:50" form:"description"`

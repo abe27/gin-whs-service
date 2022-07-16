@@ -8,7 +8,8 @@ import (
 )
 
 type JwtToken struct {
-	ID        string    `gorm:"size:21" json:"id"`
+	gorm.Model
+	ID        string    `gorm:"index;size:21" json:"id"`
 	Key       string    `gorm:"size:65" json:"key" binding:"required"`
 	UserID    string    `gorm:"unique;not null;size:21" json:"user_id" binding:"required"`
 	Token     string    `gorm:"size:255" json:"token" binding:"required"`
