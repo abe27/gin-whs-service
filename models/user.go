@@ -8,14 +8,13 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	ID         string    `gorm:"index;size:21" json:"id"`
-	UserName   string    `gorm:"column:username;unique;not null;size:10" form:"username" binding:"required"`
+	ID         string    `gorm:"primaryKey;index;size:21" json:"id"`
+	UserName   string    `gorm:"column:username;unique;not null;size:10" form:"username" json:"username" binding:"required"`
 	Password   string    `gorm:"not null;size:60" form:"password" json:"-" binding:"required"`
-	Email      string    `gorm:"default:null;size:50" form:"email" default:"-"`
-	IsVerified bool      `form:"is_verified" default:"false"`
-	CreatedAt  time.Time `form:"created_at" default:"now"`
-	UpdatedAt  time.Time `form:"updated_at" default:"now"`
+	Email      string    `gorm:"default:null;size:50" form:"email" json:"email" default:"-"`
+	IsVerified bool      `form:"is_verified" json:"is_verified" default:"false"`
+	CreatedAt  time.Time `form:"created_at" json:"created_at" default:"now"`
+	UpdatedAt  time.Time `form:"updated_at" json:"updated_at" default:"now"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

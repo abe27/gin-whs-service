@@ -8,14 +8,13 @@ import (
 )
 
 type ReceiveLedger struct {
-	gorm.Model
-	ID         string    `gorm:"index;size:21" form:"id"`
-	WhsID      string    `gorm:"size:21" form:"whs_id"`
-	FactoryID  string    `gorm:"size:21" form:"factory_id"`
-	RssGroupID string    `gorm:"size:21" form:"rss_group_id"`
-	IsActive   bool      `gorm:"null" form:"is_active" default:"false"`
-	CreatedAt  time.Time `form:"created_at" default:"now"`
-	UpdatedAt  time.Time `form:"updated_at" default:"now"`
+	ID         string    `gorm:"primaryKey;index;size:21" form:"id" json:"id"`
+	WhsID      string    `gorm:"size:21" form:"whs_id" json:"whs_id"`
+	FactoryID  string    `gorm:"size:21" form:"factory_id" json:"factory_id"`
+	RssGroupID string    `gorm:"size:21" form:"rss_group_id" json:"rss_group_id"`
+	IsActive   bool      `gorm:"null" form:"is_active" json:"is_active" default:"false"`
+	CreatedAt  time.Time `form:"created_at" json:"created_at" default:"now"`
+	UpdatedAt  time.Time `form:"updated_at" json:"updated_at" default:"now"`
 	Whs        Whs       `gorm:"foreignKey:WhsID;references:ID"`
 	Factory    Factory   `gorm:"foreignKey:FactoryID;references:ID"`
 	RssGroup   RssGroup  `gorm:"foreignKey:RssGroupID;references:ID"`
